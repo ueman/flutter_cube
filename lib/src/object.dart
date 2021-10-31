@@ -1,3 +1,4 @@
+import 'package:flutter_cube/src/model_provider/model_provider.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'scene.dart';
 import 'mesh.dart';
@@ -16,8 +17,7 @@ class Object {
     this.lighting = false,
     this.visiable = true,
     bool normalized = true,
-    String? fileName,
-    bool isAsset = true,
+    ModelProvider? modelfile,
   }) {
     if (position != null) position.copyInto(this.position);
     if (rotation != null) rotation.copyInto(this.rotation);
@@ -31,15 +31,15 @@ class Object {
     this.scene = scene;
 
     // load mesh from obj file
-    if (fileName != null) {
-      _init(fileName, normalized, isAsset);
+    if (modelfile != null) {
+      _init(modelfile, normalized);
     } else {
       this.scene?.objectCreated(this);
     }
   }
 
-  Future<void> _init(String fileName, bool normalized, bool isAsset) async {
-    final meshes = await loadObj(fileName, normalized, isAsset: isAsset);
+  Future<void> _init(ModelProvider modelfile, bool normalized) async {
+    final meshes = await loadObj(modelfile, normalized);
     if (meshes.length == 1) {
       mesh = meshes[0];
     } else if (meshes.length > 1) {

@@ -14,9 +14,12 @@ class _RubyPageState extends State<RubyPage>
     scene.camera.position.z = 10;
     scene.camera.target.y = 2;
     // from https://sketchfab.com/3d-models/ruby-rose-2270ee59d38e409491a76451f6c6ef80
-    scene.world.add(Object(
+    scene.world.add(
+      Object(
         scale: Vector3(10.0, 10.0, 10.0),
-        fileName: 'assets/ruby_rose/ruby_rose.obj'));
+        modelfile: AssetModelProvider('assets/ruby_rose/ruby_rose.obj'),
+      ),
+    );
   }
 
   @override

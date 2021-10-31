@@ -45,10 +45,12 @@ class MyHomePage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
+              /*
               Navigator.push<void>(context,
                   MaterialPageRoute(builder: (context) {
                 return PlanetPage();
               }));
+              */
             },
             child: Text('planet example'),
           ),

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:math' as math;
+import 'package:flutter_cube/src/model_provider/model_provider.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as path;
@@ -69,10 +70,9 @@ class Mesh {
 /// Reference：http://paulbourke.net/dataformats/obj/
 ///
 Future<List<Mesh>> loadObj(
-  String fileName,
-  bool normalized, {
-  bool isAsset = true,
-}) async {
+  ModelProvider modelProvider,
+  bool normalized,
+) async {
   Map<String, Material>? materials;
   final vertices = <Vector3>[];
   final texcoords = <Offset>[];
@@ -84,16 +84,9 @@ Future<List<Mesh>> loadObj(
   String? materialName;
   String? objectlName;
   String? groupName;
-  final String basePath = path.dirname(fileName);
 
-  String data;
-  if (isAsset) {
-    // load obj data from asset.
-    data = await rootBundle.loadString(fileName);
-  } else {
-    // load obj data from file.
-    data = await File(fileName).readAsString();
-  }
+  final data = await modelProvider.loadObject();
+
   final lines = data.split('\n');
   for (var line in lines) {
     final List<String> parts = line.trim().split(RegExp(r"\s+"));
@@ -101,8 +94,7 @@ Future<List<Mesh>> loadObj(
     switch (parts[0]) {
       case 'mtllib':
         // load material library file. eg: mtllib master.mtl
-        final mtlFileName = path.join(basePath, parts[1]);
-        materials = await loadMtl(mtlFileName, isAsset: isAsset);
+        materials = await loadMtl(parts[1], modelProvider);
         break;
       case 'usemtl':
         // material name from material library. eg: usemtl red
@@ -182,8 +174,7 @@ Future<List<Mesh>> loadObj(
     elementNames,
     elementMaterials,
     elementOffsets,
-    basePath,
-    isAsset,
+    modelProvider,
   );
   return normalized ? normalizeMesh(meshes) : meshes;
 }
@@ -198,8 +189,7 @@ Future<List<Mesh>> _buildMesh(
   List<String> elementNames,
   List<String> elementMaterials,
   List<int> elementOffsets,
-  String basePath,
-  bool isAsset,
+  ModelProvider modelProvider,
 ) async {
   if (elementOffsets.isEmpty) {
     elementNames.add('');
@@ -247,7 +237,7 @@ Future<List<Mesh>> _buildMesh(
     final Material? material =
         (materials != null) ? materials[elementMaterials[index]] : null;
     final MapEntry<String, Image>? imageEntry =
-        await loadTexture(material, basePath);
+        await loadTexture(material, modelProvider);
 
     // fix zero texture area
     if (imageEntry != null) {

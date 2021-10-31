@@ -27,7 +27,7 @@ class _BunnyPageState extends State<BunnyPage>
         position: Vector3(0, -1.0, 0),
         scale: Vector3(10.0, 10.0, 10.0),
         lighting: true,
-        fileName: 'assets/bunny/bunny.obj');
+        modelfile: AssetModelProvider('assets/bunny/bunny.obj'));
     scene.world.add(_bunny!);
   }
 

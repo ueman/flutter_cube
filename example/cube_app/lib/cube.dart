@@ -21,9 +21,10 @@ class _CubePageState extends State<CubePage>
     _scene = scene;
     scene.camera.position.z = 50;
     _cube = Object(
-        scale: Vector3(2.0, 2.0, 2.0),
-        backfaceCulling: false,
-        fileName: 'assets/cube/cube.obj');
+      scale: Vector3(2.0, 2.0, 2.0),
+      backfaceCulling: false,
+      modelfile: AssetModelProvider('assets/cube/cube.obj'),
+    );
     final int samples = 100;
     final double radius = 8;
     final double offset = 2 / samples;
@@ -36,7 +37,7 @@ class _CubePageState extends State<CubePage>
       final z = sin(phi) * r;
       final Object cube = Object(
         position: Vector3(x, y, z)..scale(radius),
-        fileName: 'assets/cube/cube.obj',
+        modelfile: AssetModelProvider('assets/cube/cube.obj'),
       );
       _cube!.add(cube);
     }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_cube/src/model_provider/model_provider.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as path;
@@ -38,26 +39,22 @@ class Material {
 
 /// Loading material from Material Library File (.mtl).
 /// Reference：http://paulbourke.net/dataformats/mtl/
-///
 Future<Map<String, Material>> loadMtl(
-  String fileName, {
-  bool isAsset = true,
-}) async {
+  String name,
+  ModelProvider provider,
+) async {
   final materials = <String, Material>{};
-  String data;
+  String data = '';
   try {
-    if (isAsset) {
-      data = await rootBundle.loadString(fileName);
-    } else {
-      data = await File(fileName).readAsString();
-    }
+    data = await provider.loadMaterial(name);
   } catch (_) {
     return materials;
   }
+
   final List<String> lines = data.split('\n');
 
   Material material = Material();
-  for (String line in lines) {
+  for (final line in lines) {
     final parts = line.trim().split(RegExp(r"\s+"));
     switch (parts[0]) {
       case 'newmtl':
@@ -131,29 +128,11 @@ Future<Map<String, Material>> loadMtl(
   return materials;
 }
 
-/// load an image from asset
-Future<Image> loadImageFromAsset(String fileName, {bool isAsset = true}) async {
-  Uint8List dataFuture;
-  if (isAsset) {
-    dataFuture = await rootBundle
-        .load(fileName)
-        .then((data) => data.buffer.asUint8List());
-  } else {
-    dataFuture = await File(fileName).readAsBytes();
-  }
-
-  final codec = await instantiateImageCodec(dataFuture);
-  final frameInfo = await codec.getNextFrame();
-
-  return frameInfo.image;
-}
-
 /// load texture from asset
 Future<MapEntry<String, Image>?> loadTexture(
   Material? material,
-  String basePath, {
-  bool isAsset = true,
-}) async {
+  ModelProvider modelProvider,
+) async {
   // get the texture file name
   if (material == null) {
     return null;
@@ -164,18 +143,8 @@ Future<MapEntry<String, Image>?> loadTexture(
     return null;
   }
 
-  // try to load image from asset in subdirectories
-  Image? image;
-  final List<String> dirList = fileName.split(RegExp(r'[/\\]+'));
-  while (dirList.isNotEmpty) {
-    fileName = path.join(basePath, path.joinAll(dirList));
-    try {
-      image = await loadImageFromAsset(fileName, isAsset: isAsset);
-    } catch (_) {}
-    if (image != null) return MapEntry(fileName, image);
-    dirList.removeAt(0);
-  }
-  return null;
+  final image = await modelProvider.loadImage(fileName);
+  return MapEntry(fileName, image);
 }
 
 Future<Uint32List> getImagePixels(Image image) async {
