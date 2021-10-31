@@ -5,7 +5,7 @@ import 'dart:ui';
 abstract class ModelProvider {
   Future<String> loadObject();
   Future<String> loadMaterial(String mtl);
-  Future<Uint8List> loadAsset(String path);
+  Future<Uint8List> loadAsset(String name);
 }
 
 extension ModelProviderX on ModelProvider {

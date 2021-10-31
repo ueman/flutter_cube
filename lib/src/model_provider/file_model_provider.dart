@@ -9,8 +9,8 @@ class FileModelProvider extends ModelProvider {
   final String path;
 
   @override
-  Future<Uint8List> loadAsset(String path) {
-    return File(path).readAsBytes();
+  Future<Uint8List> loadAsset(String name) {
+    return File(name).readAsBytes();
   }
 
   @override
