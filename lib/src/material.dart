@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_cube/src/model_provider/model_provider.dart';
 import 'package:vector_math/vector_math_64.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path/path.dart' as path;
 import 'dart:ui';
 
 class Material {
@@ -133,7 +130,6 @@ Future<MapEntry<String, Image>?> loadTexture(
   Material? material,
   ModelProvider modelProvider,
 ) async {
-  // get the texture file name
   if (material == null) {
     return null;
   }
@@ -155,7 +151,11 @@ Future<Uint32List> getImagePixels(Image image) async {
 /// Convert Vector3 to Color
 Color toColor(Vector3 v, [double opacity = 1.0]) {
   return Color.fromRGBO(
-      (v.r * 255).toInt(), (v.g * 255).toInt(), (v.b * 255).toInt(), opacity);
+    (v.r * 255).toInt(),
+    (v.g * 255).toInt(),
+    (v.b * 255).toInt(),
+    opacity,
+  );
 }
 
 /// Convert Color to Vector3

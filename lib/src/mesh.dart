@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter_cube/src/model_provider/model_provider.dart';
 import 'package:vector_math/vector_math_64.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path/path.dart' as path;
 import 'material.dart';
 
 class Polygon {
@@ -75,6 +72,7 @@ Future<List<Mesh>> loadObj(
 ) async {
   Map<String, Material>? materials;
   final vertices = <Vector3>[];
+  final colors = <Color>[];
   final texcoords = <Offset>[];
   final vertexIndices = <Polygon>[];
   final textureIndices = <Polygon>[];
@@ -120,6 +118,11 @@ Future<List<Mesh>> loadObj(
           final v = Vector3(double.parse(parts[1]), double.parse(parts[2]),
               double.parse(parts[3]));
           vertices.add(v);
+        }
+        if (parts.length == 7) {
+          final c = toColor(Vector3(double.parse(parts[4]),
+              double.parse(parts[5]), double.parse(parts[6])));
+          colors.add(c);
         }
         break;
       case 'vt':
@@ -167,6 +170,7 @@ Future<List<Mesh>> loadObj(
   }
   final meshes = await _buildMesh(
     vertices,
+    colors,
     texcoords,
     vertexIndices,
     textureIndices,
@@ -182,6 +186,7 @@ Future<List<Mesh>> loadObj(
 /// Load the texture image file and rebuild vertices and texcoords to keep the same length.
 Future<List<Mesh>> _buildMesh(
   List<Vector3> vertices,
+  List<Color> colors,
   List<Offset> texcoords,
   List<Polygon> vertexIndices,
   List<Polygon> textureIndices,
@@ -234,13 +239,11 @@ Future<List<Mesh>> _buildMesh(
     }
 
     // load texture image from assets.
-    final Material? material =
-        (materials != null) ? materials[elementMaterials[index]] : null;
-    final MapEntry<String, Image>? imageEntry =
-        await loadTexture(material, modelProvider);
+    final material = materials?[elementMaterials[index]];
 
-    // fix zero texture area
+    final imageEntry = await loadTexture(material, modelProvider);
     if (imageEntry != null) {
+      // fix zero texture area
       _remapZeroAreaUVs(
         newTexcoords,
         newTextureIndices,
@@ -255,6 +258,7 @@ Future<List<Mesh>> _buildMesh(
 
     final Mesh mesh = Mesh(
       vertices: newVertices,
+      colors: colors,
       texcoords: newTexcoords,
       indices: newIndices,
       texture: imageEntry?.value,
