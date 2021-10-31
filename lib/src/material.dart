@@ -39,8 +39,11 @@ class Material {
 /// Loading material from Material Library File (.mtl).
 /// Reference：http://paulbourke.net/dataformats/mtl/
 ///
-Future<Map<String, Material>> loadMtl(String fileName, {bool isAsset = true}) async {
-  final materials = Map<String, Material>();
+Future<Map<String, Material>> loadMtl(
+  String fileName, {
+  bool isAsset = true,
+}) async {
+  final materials = <String, Material>{};
   String data;
   try {
     if (isAsset) {
@@ -55,7 +58,7 @@ Future<Map<String, Material>> loadMtl(String fileName, {bool isAsset = true}) as
 
   Material material = Material();
   for (String line in lines) {
-    List<String> parts = line.trim().split(RegExp(r"\s+"));
+    final parts = line.trim().split(RegExp(r"\s+"));
     switch (parts[0]) {
       case 'newmtl':
         material = Material();
@@ -66,25 +69,29 @@ Future<Map<String, Material>> loadMtl(String fileName, {bool isAsset = true}) as
         break;
       case 'Ka':
         if (parts.length >= 4) {
-          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]), double.parse(parts[3]));
+          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]),
+              double.parse(parts[3]));
           material.ambient = v;
         }
         break;
       case 'Kd':
         if (parts.length >= 4) {
-          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]), double.parse(parts[3]));
+          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]),
+              double.parse(parts[3]));
           material.diffuse = v;
         }
         break;
       case 'Ks':
         if (parts.length >= 4) {
-          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]), double.parse(parts[3]));
+          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]),
+              double.parse(parts[3]));
           material.specular = v;
         }
         break;
       case 'Ke':
         if (parts.length >= 4) {
-          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]), double.parse(parts[3]));
+          final v = Vector3(double.parse(parts[1]), double.parse(parts[2]),
+              double.parse(parts[3]));
           material.ke = v;
         }
         break;
@@ -125,38 +132,42 @@ Future<Map<String, Material>> loadMtl(String fileName, {bool isAsset = true}) as
 }
 
 /// load an image from asset
-Future<Image> loadImageFromAsset(String fileName, {bool isAsset = true}) {
-  final c = Completer<Image>();
-  var dataFuture;
+Future<Image> loadImageFromAsset(String fileName, {bool isAsset = true}) async {
+  Uint8List dataFuture;
   if (isAsset) {
-    dataFuture = rootBundle.load(fileName).then((data) => data.buffer.asUint8List());
+    dataFuture = await rootBundle
+        .load(fileName)
+        .then((data) => data.buffer.asUint8List());
   } else {
-    dataFuture = File(fileName).readAsBytes();
+    dataFuture = await File(fileName).readAsBytes();
   }
-  dataFuture.then((data) {
-    instantiateImageCodec(data).then((codec) {
-      codec.getNextFrame().then((frameInfo) {
-        c.complete(frameInfo.image);
-      });
-    });
-  }).catchError((error) {
-    c.completeError(error);
-  });
-  return c.future;
+
+  final codec = await instantiateImageCodec(dataFuture);
+  final frameInfo = await codec.getNextFrame();
+
+  return frameInfo.image;
 }
 
 /// load texture from asset
-Future<MapEntry<String, Image>?> loadTexture(Material? material, String basePath, {bool isAsset = true}) async {
+Future<MapEntry<String, Image>?> loadTexture(
+  Material? material,
+  String basePath, {
+  bool isAsset = true,
+}) async {
   // get the texture file name
-  if (material == null) return null;
+  if (material == null) {
+    return null;
+  }
   String fileName = material.mapKa;
-  if (fileName == '') fileName = material.mapKd;
-  if (fileName == '') return null;
+  if (fileName.isEmpty) fileName = material.mapKd;
+  if (fileName.isEmpty) {
+    return null;
+  }
 
   // try to load image from asset in subdirectories
   Image? image;
   final List<String> dirList = fileName.split(RegExp(r'[/\\]+'));
-  while (dirList.length > 0) {
+  while (dirList.isNotEmpty) {
     fileName = path.join(basePath, path.joinAll(dirList));
     try {
       image = await loadImageFromAsset(fileName, isAsset: isAsset);
@@ -168,19 +179,14 @@ Future<MapEntry<String, Image>?> loadTexture(Material? material, String basePath
 }
 
 Future<Uint32List> getImagePixels(Image image) async {
-  final c = Completer<Uint32List>();
-  image.toByteData(format: ImageByteFormat.rawRgba).then((data) {
-    c.complete(data!.buffer.asUint32List());
-  }).catchError((error) {
-    c.completeError(error);
-  });
-
-  return c.future;
+  final data = await image.toByteData(format: ImageByteFormat.rawRgba);
+  return data!.buffer.asUint32List();
 }
 
 /// Convert Vector3 to Color
 Color toColor(Vector3 v, [double opacity = 1.0]) {
-  return Color.fromRGBO((v.r * 255).toInt(), (v.g * 255).toInt(), (v.b * 255).toInt(), opacity);
+  return Color.fromRGBO(
+      (v.r * 255).toInt(), (v.g * 255).toInt(), (v.b * 255).toInt(), opacity);
 }
 
 /// Convert Color to Vector3

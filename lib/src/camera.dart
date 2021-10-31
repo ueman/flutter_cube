@@ -30,9 +30,7 @@ class Camera {
 
   double get aspectRatio => viewportWidth / viewportHeight;
 
-  Matrix4 get lookAtMatrix {
-    return makeViewMatrix(position, target, up);
-  }
+  Matrix4 get lookAtMatrix => makeViewMatrix(position, target, up);
 
   Matrix4 get projectionMatrix {
     final double top = near * math.tan(radians(fov) / 2.0) / zoom;
@@ -45,19 +43,20 @@ class Camera {
   void trackBall(Vector2 from, Vector2 to, [double sensitivity = 1.0]) {
     final double x = -(to.x - from.x) * sensitivity / (viewportWidth * 0.5);
     final double y = (to.y - from.y) * sensitivity / (viewportHeight * 0.5);
-    Vector2 delta = Vector2(x, y);
+    final Vector2 delta = Vector2(x, y);
     Vector3 moveDirection = Vector3(delta.x, delta.y, 0);
     final double angle = moveDirection.length;
     if (angle > 0) {
-      Vector3 _eye = position - target;
-      Vector3 eyeDirection = _eye.normalized();
-      Vector3 upDirection = up.normalized();
-      Vector3 sidewaysDirection = upDirection.cross(eyeDirection).normalized();
+      final Vector3 _eye = position - target;
+      final Vector3 eyeDirection = _eye.normalized();
+      final Vector3 upDirection = up.normalized();
+      final Vector3 sidewaysDirection =
+          upDirection.cross(eyeDirection).normalized();
       upDirection.scale(delta.y);
       sidewaysDirection.scale(delta.x);
       moveDirection = upDirection + sidewaysDirection;
-      Vector3 axis = moveDirection.cross(_eye).normalized();
-      Quaternion q = Quaternion.axisAngle(axis, angle);
+      final Vector3 axis = moveDirection.cross(_eye).normalized();
+      final Quaternion q = Quaternion.axisAngle(axis, angle);
       q.rotate(position);
       q.rotate(up);
     }

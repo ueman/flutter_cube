@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'dart:typed_data';
-import 'package:flutter_cube/flutter_cube.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'object.dart';
 import 'camera.dart';
@@ -12,8 +11,8 @@ typedef ObjectCreatedCallback = void Function(Object object);
 
 class Scene {
   Scene({VoidCallback? onUpdate, ObjectCreatedCallback? onObjectCreated}) {
-    this._onUpdate = onUpdate;
-    this._onObjectCreated = onObjectCreated;
+    _onUpdate = onUpdate;
+    _onObjectCreated = onObjectCreated;
     world = Object(scene: this);
   }
 
@@ -48,14 +47,27 @@ class Scene {
     return renderMesh;
   }
 
-  bool _isBackFace(double ax, double ay, double bx, double by, double cx, double cy) {
-    double area = (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);
+  bool _isBackFace(
+      double ax, double ay, double bx, double by, double cx, double cy) {
+    final area = (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);
     return area <= 0;
   }
 
-  bool _isClippedFace(double ax, double ay, double az, double bx, double by, double bz, double cx, double cy, double cz) {
+  bool _isClippedFace(
+    double ax,
+    double ay,
+    double az,
+    double bx,
+    double by,
+    double bz,
+    double cx,
+    double cy,
+    double cz,
+  ) {
     // clip if at least one vertex is outside the near and far plane
-    if (az < 0 || az > 1 || bz < 0 || bz > 1 || cz < 0 || cz > 1) return true;
+    if (az < 0 || az > 1 || bz < 0 || bz > 1 || cz < 0 || cz > 1) {
+      return true;
+    }
     // clip if the face's bounding box does not intersect the viewport
     double left;
     double right;
@@ -67,9 +79,13 @@ class Scene {
       right = ax;
     }
     if (left > cx) left = cx;
-    if (left > 1) return true;
+    if (left > 1) {
+      return true;
+    }
     if (right < cx) right = cx;
-    if (right < -1) return true;
+    if (right < -1) {
+      return true;
+    }
 
     double top;
     double bottom;
@@ -81,14 +97,26 @@ class Scene {
       bottom = ay;
     }
     if (top > cy) top = cy;
-    if (top > 1) return true;
+    if (top > 1) {
+      return true;
+    }
     if (bottom < cy) bottom = cy;
-    if (bottom < -1) return true;
+    if (bottom < -1) {
+      return true;
+    }
     return false;
   }
 
-  void _renderObject(RenderMesh renderMesh, Object o, Matrix4 model, Matrix4 view, Matrix4 projection) {
-    if (!o.visiable) return;
+  void _renderObject(
+    RenderMesh renderMesh,
+    Object o,
+    Matrix4 model,
+    Matrix4 view,
+    Matrix4 projection,
+  ) {
+    if (!o.visiable) {
+      return;
+    }
     model *= o.transform;
     final Matrix4 transform = projection * view * model;
 
@@ -101,6 +129,7 @@ class Scene {
     final int vertexOffset = renderMesh.vertexCount;
     final int vertexCount = vertices.length;
     final Vector4 v = Vector4.identity();
+
     for (int i = 0; i < vertexCount; i++) {
       // Conver Vector3 to Vector4
       final Float64List storage3 = vertices[i].storage;
@@ -108,10 +137,10 @@ class Scene {
       // apply "model => world => camera => perspective" transform
       v.applyMatrix4(transform);
       // transform from homonegenous coordinates to the normalized device coordinates，
-      final int xIndex = (vertexOffset + i) * 2;
-      final int yIndex = xIndex + 1;
-      final Float64List storage4 = v.storage;
-      final double w = storage4[3]; //v.w;
+      final xIndex = (vertexOffset + i) * 2;
+      final yIndex = xIndex + 1;
+      final storage4 = v.storage;
+      final w = storage4[3]; //v.w;
       positions[xIndex] = storage4[0] / w; //v.x;
       positions[yIndex] = storage4[1] / w; //v.y;
       positionsZ[vertexOffset + i] = storage4[2] / w; //v.z;
@@ -141,7 +170,8 @@ class Scene {
       if (!culling || !_isBackFace(ax, ay, bx, by, cx, cy)) {
         if (!_isClippedFace(ax, ay, az, bx, by, bz, cx, cy, cz)) {
           final double sumOfZ = az + bz + cz;
-          renderIndices[indexOffset + i] = Polygon(vertex0, vertex1, vertex2, sumOfZ);
+          renderIndices[indexOffset + i] =
+              Polygon(vertex0, vertex1, vertex2, sumOfZ);
         }
       }
     }
@@ -171,9 +201,12 @@ class Scene {
           b.applyMatrix4(vertexTransform);
           c.applyMatrix4(vertexTransform);
 
-          renderColors[vertexOffset + p.vertex0] = light.shading(viewPosition, a, normal, material).value;
-          renderColors[vertexOffset + p.vertex1] = light.shading(viewPosition, b, normal, material).value;
-          renderColors[vertexOffset + p.vertex2] = light.shading(viewPosition, c, normal, material).value;
+          renderColors[vertexOffset + p.vertex0] =
+              light.shading(viewPosition, a, normal, material).value;
+          renderColors[vertexOffset + p.vertex1] =
+              light.shading(viewPosition, b, normal, material).value;
+          renderColors[vertexOffset + p.vertex2] =
+              light.shading(viewPosition, c, normal, material).value;
         }
       }
     } else {
@@ -182,7 +215,9 @@ class Scene {
       final List<Color> colors = o.mesh.colors;
       final int colorCount = o.mesh.vertices.length;
       if (colorCount != o.mesh.colors.length) {
-        final int colorValue = (o.mesh.texture != null) ? Color.fromARGB(0, 0, 0, 0).value : toColor(o.mesh.material.diffuse, o.mesh.material.opacity).value;
+        final int colorValue = (o.mesh.texture != null)
+            ? const Color.fromARGB(0, 0, 0, 0).value
+            : toColor(o.mesh.material.diffuse, o.mesh.material.opacity).value;
         for (int i = 0; i < colorCount; i++) {
           renderColors[vertexOffset + i] = colorValue;
         }
@@ -230,7 +265,7 @@ class Scene {
     }
 
     // render children
-    List<Object> children = o.children;
+    final children = o.children;
     for (int i = 0; i < children.length; i++) {
       _renderObject(renderMesh, children[i], model, view, projection);
     }
@@ -245,7 +280,8 @@ class Scene {
 
     // create render mesh from objects
     final renderMesh = _makeRenderMesh();
-    _renderObject(renderMesh, world, Matrix4.identity(), camera.lookAtMatrix, camera.projectionMatrix);
+    _renderObject(renderMesh, world, Matrix4.identity(), camera.lookAtMatrix,
+        camera.projectionMatrix);
 
     // remove the culled faces and recreate list.
     final List<Polygon> renderIndices = <Polygon>[];
@@ -254,7 +290,7 @@ class Scene {
       final Polygon? p = rawIndices[i];
       if (p != null) renderIndices.add(p);
     }
-    if (renderIndices.length == 0) return;
+    if (renderIndices.isEmpty) return;
 
     // sort the faces by z
     renderIndices.sort((Polygon a, Polygon b) {
@@ -282,15 +318,17 @@ class Scene {
     final vertices = Vertices.raw(
       VertexMode.triangles,
       renderMesh.positions,
-      textureCoordinates: renderMesh.texture == null ? null : renderMesh.texcoords,
+      textureCoordinates:
+          renderMesh.texture == null ? null : renderMesh.texcoords,
       colors: renderMesh.colors,
       indices: indices,
     );
 
     final paint = Paint();
     if (renderMesh.texture != null) {
-      Float64List matrix4 = new Matrix4.identity().storage;
-      final shader = ImageShader(renderMesh.texture!, TileMode.mirror, TileMode.mirror, matrix4);
+      final matrix4 = Matrix4.identity().storage;
+      final shader = ImageShader(
+          renderMesh.texture!, TileMode.mirror, TileMode.mirror, matrix4);
       paint.shader = shader;
     }
     paint.blendMode = blendMode;

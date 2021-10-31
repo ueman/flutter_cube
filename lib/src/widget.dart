@@ -3,10 +3,10 @@ import 'package:flutter/widgets.dart' hide Image;
 import 'package:vector_math/vector_math_64.dart';
 import 'scene.dart';
 
-typedef void SceneCreatedCallback(Scene scene);
+typedef SceneCreatedCallback = void Function(Scene scene);
 
 class Cube extends StatefulWidget {
-  Cube({
+  const Cube({
     Key? key,
     this.interactive = true,
     this.onSceneCreated,
@@ -32,7 +32,11 @@ class _CubeState extends State<Cube> {
   }
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
-    scene.camera.trackBall(toVector2(_lastFocalPoint), toVector2(details.localFocalPoint), 1.5);
+    scene.camera.trackBall(
+      toVector2(_lastFocalPoint),
+      toVector2(details.localFocalPoint),
+      1.5,
+    );
     _lastFocalPoint = details.localFocalPoint;
     if (_lastZoom == null) {
       _lastZoom = scene.camera.zoom;
@@ -57,21 +61,24 @@ class _CubeState extends State<Cube> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      scene.camera.viewportWidth = constraints.maxWidth;
-      scene.camera.viewportHeight = constraints.maxHeight;
-      final customPaint = CustomPaint(
-        painter: _CubePainter(scene),
-        size: Size(constraints.maxWidth, constraints.maxHeight),
-      );
-      return widget.interactive
-          ? GestureDetector(
-              onScaleStart: _handleScaleStart,
-              onScaleUpdate: _handleScaleUpdate,
-              child: customPaint,
-            )
-          : customPaint;
-    });
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        scene.camera.viewportWidth = constraints.maxWidth;
+        scene.camera.viewportHeight = constraints.maxHeight;
+        final customPaint = CustomPaint(
+          painter: _CubePainter(scene),
+          size: Size(constraints.maxWidth, constraints.maxHeight),
+        );
+        if (widget.interactive) {
+          return GestureDetector(
+            onScaleStart: _handleScaleStart,
+            onScaleUpdate: _handleScaleUpdate,
+            child: customPaint,
+          );
+        }
+        return customPaint;
+      },
+    );
   }
 }
 

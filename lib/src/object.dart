@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:vector_math/vector_math_64.dart';
 import 'scene.dart';
 import 'mesh.dart';
@@ -33,20 +32,30 @@ class Object {
 
     // load mesh from obj file
     if (fileName != null) {
-      loadObj(fileName, normalized, isAsset: isAsset).then((List<Mesh> meshes) {
-        if (meshes.length == 1) {
-          this.mesh = meshes[0];
-        } else if (meshes.length > 1) {
-          // multiple objects
-          for (Mesh mesh in meshes) {
-            add(Object(name: mesh.name, mesh: mesh, backfaceCulling: backfaceCulling, lighting: lighting));
-          }
-        }
-        this.scene?.objectCreated(this);
-      });
+      _init(fileName, normalized, isAsset);
     } else {
       this.scene?.objectCreated(this);
     }
+  }
+
+  Future<void> _init(String fileName, bool normalized, bool isAsset) async {
+    final meshes = await loadObj(fileName, normalized, isAsset: isAsset);
+    if (meshes.length == 1) {
+      mesh = meshes[0];
+    } else if (meshes.length > 1) {
+      // multiple objects
+      for (Mesh mesh in meshes) {
+        add(
+          Object(
+            name: mesh.name,
+            mesh: mesh,
+            backfaceCulling: backfaceCulling,
+            lighting: lighting,
+          ),
+        );
+      }
+    }
+    scene?.objectCreated(this);
   }
 
   /// The local position of this object relative to the parent. Default is Vector3(0.0, 0.0, 0.0). updateTransform after you change the value.
@@ -93,7 +102,15 @@ class Object {
   final Matrix4 transform = Matrix4.identity();
 
   void updateTransform() {
-    final Matrix4 m = Matrix4.compose(position, Quaternion.euler(radians(rotation.y), radians(rotation.x), radians(rotation.z)), scale);
+    final Matrix4 m = Matrix4.compose(
+      position,
+      Quaternion.euler(
+        radians(rotation.y),
+        radians(rotation.x),
+        radians(rotation.z),
+      ),
+      scale,
+    );
     transform.setFrom(m);
   }
 
@@ -113,7 +130,9 @@ class Object {
   /// Find a child matching the name
   Object? find(Pattern name) {
     for (Object child in children) {
-      if (child.name != null && (name as RegExp).hasMatch(child.name!)) return child;
+      if (child.name != null && (name as RegExp).hasMatch(child.name!)) {
+        return child;
+      }
       final Object? result = child.find(name);
       if (result != null) return result;
     }
