@@ -44,18 +44,15 @@ class _CubeState extends State<Cube> {
     } else {
       scene.camera.zoom = _lastZoom! * details.scale;
     }
-    setState(() {});
+    scene.update();
   }
 
   @override
   void initState() {
     super.initState();
-    scene = Scene(
-      onUpdate: () => setState(() {}),
-      onObjectCreated: widget.onObjectCreated,
-    );
+    scene = Scene(onObjectCreated: widget.onObjectCreated);
     // prevent setState() or markNeedsBuild called during build
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       widget.onSceneCreated?.call(scene);
     });
   }
@@ -85,7 +82,7 @@ class _CubeState extends State<Cube> {
 
 class _CubePainter extends CustomPainter {
   final Scene _scene;
-  const _CubePainter(this._scene);
+  _CubePainter(this._scene) : super(repaint: _scene);
 
   @override
   void paint(Canvas canvas, Size size) {

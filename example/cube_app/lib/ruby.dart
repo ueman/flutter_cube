@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cube/flutter_cube.dart';
 
 class RubyPage extends StatefulWidget {
-  RubyPage({Key? key}) : super(key: key);
+  const RubyPage({Key? key}) : super(key: key);
 
   @override
   _RubyPageState createState() => _RubyPageState();
@@ -26,7 +26,7 @@ class _RubyPageState extends State<RubyPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ruby'),
+        title: const Text('ruby'),
       ),
       body: Center(
         child: Cube(

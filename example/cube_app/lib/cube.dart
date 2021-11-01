@@ -3,7 +3,7 @@ import 'package:flutter_cube/flutter_cube.dart';
 import 'dart:math';
 
 class CubePage extends StatefulWidget {
-  CubePage({Key? key, this.title = 'Cube'}) : super(key: key);
+  const CubePage({Key? key, this.title = 'Cube'}) : super(key: key);
 
   final String title;
 
@@ -25,9 +25,9 @@ class _CubePageState extends State<CubePage>
       backfaceCulling: false,
       modelfile: AssetModelProvider('assets/cube/cube.obj'),
     );
-    final int samples = 100;
-    final double radius = 8;
-    final double offset = 2 / samples;
+    const int samples = 100;
+    const double radius = 8;
+    const double offset = 2 / samples;
     final double increment = pi * (3 - sqrt(5));
     for (var i = 0; i < samples; i++) {
       final y = (i * offset - 1) + offset / 2;
@@ -48,7 +48,7 @@ class _CubePageState extends State<CubePage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        duration: Duration(milliseconds: 30000), vsync: this)
+        duration: const Duration(milliseconds: 30000), vsync: this)
       ..addListener(() {
         if (_cube != null) {
           _cube!.rotation.y = _controller.value * 360;

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'dart:typed_data';
+import 'package:flutter/widgets.dart' show ChangeNotifier;
 import 'package:vector_math/vector_math_64.dart';
 import 'object.dart';
 import 'camera.dart';
@@ -9,21 +10,17 @@ import 'light.dart';
 
 typedef ObjectCreatedCallback = void Function(Object object);
 
-class Scene {
-  Scene({VoidCallback? onUpdate, ObjectCreatedCallback? onObjectCreated}) {
-    _onUpdate = onUpdate;
-    _onObjectCreated = onObjectCreated;
-    world = Object(scene: this);
-  }
+class Scene extends ChangeNotifier {
+  Scene({ObjectCreatedCallback? onObjectCreated})
+      : _onObjectCreated = onObjectCreated;
 
   Light light = Light();
   Camera camera = Camera();
-  late Object world;
+  late Object world = Object(scene: this);
   Image? texture;
   BlendMode blendMode = BlendMode.srcOver;
   BlendMode textureBlendMode = BlendMode.srcOver;
-  VoidCallback? _onUpdate;
-  ObjectCreatedCallback? _onObjectCreated;
+  final ObjectCreatedCallback? _onObjectCreated;
   int vertexCount = 0;
   int faceCount = 0;
   bool _needsUpdateTexture = false;
@@ -350,7 +347,7 @@ class Scene {
     _onObjectCreated?.call(object);
   }
 
-  void update() => _onUpdate?.call();
+  void update() => notifyListeners();
 
   void _getAllMesh(List<Mesh> meshes, Object object) {
     meshes.add(object.mesh);

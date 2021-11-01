@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cube/flutter_cube.dart';
 
 class FacePage extends StatefulWidget {
-  FacePage({Key? key}) : super(key: key);
+  const FacePage({Key? key}) : super(key: key);
 
   @override
   _FacePageState createState() => _FacePageState();
@@ -14,16 +14,19 @@ class _FacePageState extends State<FacePage>
     scene.camera.position.z = 10;
     scene.camera.target.y = 2;
     // from https://github.com/mikedh/trimesh
-    scene.world.add(Object(
+    scene.world.add(
+      Object(
         scale: Vector3(5.0, 5.0, 5.0),
-        modelfile: AssetModelProvider('assets/face.obj')));
+        modelfile: AssetModelProvider('assets/face.obj'),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('face'),
+        title: const Text('face'),
       ),
       body: Center(
         child: Cube(

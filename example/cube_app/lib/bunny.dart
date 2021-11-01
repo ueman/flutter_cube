@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cube/flutter_cube.dart';
 
 class BunnyPage extends StatefulWidget {
-  BunnyPage({Key? key}) : super(key: key);
+  const BunnyPage({Key? key}) : super(key: key);
 
   @override
   _BunnyPageState createState() => _BunnyPageState();
@@ -13,7 +13,7 @@ class _BunnyPageState extends State<BunnyPage>
   late Scene _scene;
   Object? _bunny;
   late AnimationController _controller;
-  double _ambient = 0.1;
+  final double _ambient = 0.1;
   double _diffuse = 0.8;
   double _specular = 0.5;
   double _shininess = 0.0;
@@ -35,7 +35,7 @@ class _BunnyPageState extends State<BunnyPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        duration: Duration(milliseconds: 30000), vsync: this)
+        duration: const Duration(milliseconds: 30000), vsync: this)
       ..addListener(() {
         if (_bunny != null) {
           _bunny!.rotation.y = _controller.value * 360;
@@ -56,7 +56,7 @@ class _BunnyPageState extends State<BunnyPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bunny'),
+        title: const Text('Bunny'),
       ),
       body: Stack(
         children: <Widget>[
@@ -67,7 +67,7 @@ class _BunnyPageState extends State<BunnyPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Flexible(flex: 2, child: Text('diffuse')),
+                  const Flexible(flex: 2, child: Text('diffuse')),
                   Flexible(
                     flex: 8,
                     child: Slider(
@@ -89,7 +89,7 @@ class _BunnyPageState extends State<BunnyPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Flexible(flex: 2, child: Text('specular')),
+                  const Flexible(flex: 2, child: Text('specular')),
                   Flexible(
                     flex: 8,
                     child: Slider(
@@ -111,7 +111,7 @@ class _BunnyPageState extends State<BunnyPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Flexible(flex: 2, child: Text('shininess')),
+                  const Flexible(flex: 2, child: Text('shininess')),
                   Flexible(
                     flex: 8,
                     child: Slider(
