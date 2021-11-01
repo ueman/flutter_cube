@@ -280,14 +280,19 @@ class Scene {
 
     // create render mesh from objects
     final renderMesh = _makeRenderMesh();
-    _renderObject(renderMesh, world, Matrix4.identity(), camera.lookAtMatrix,
-        camera.projectionMatrix);
+    _renderObject(
+      renderMesh,
+      world,
+      Matrix4.identity(),
+      camera.lookAtMatrix,
+      camera.projectionMatrix,
+    );
 
     // remove the culled faces and recreate list.
     final List<Polygon> renderIndices = <Polygon>[];
     final List<Polygon?> rawIndices = renderMesh.indices;
     for (int i = 0; i < rawIndices.length; i++) {
-      final Polygon? p = rawIndices[i];
+      final p = rawIndices[i];
       if (p != null) renderIndices.add(p);
     }
     if (renderIndices.isEmpty) return;
@@ -328,21 +333,24 @@ class Scene {
     if (renderMesh.texture != null) {
       final matrix4 = Matrix4.identity().storage;
       final shader = ImageShader(
-          renderMesh.texture!, TileMode.mirror, TileMode.mirror, matrix4);
+        renderMesh.texture!,
+        TileMode.mirror,
+        TileMode.mirror,
+        matrix4,
+      );
       paint.shader = shader;
     }
     paint.blendMode = blendMode;
+    paint.isAntiAlias = true;
     canvas.drawVertices(vertices, textureBlendMode, paint);
   }
 
   void objectCreated(Object object) {
     updateTexture();
-    if (_onObjectCreated != null) _onObjectCreated!(object);
+    _onObjectCreated?.call(object);
   }
 
-  void update() {
-    if (_onUpdate != null) _onUpdate!();
-  }
+  void update() => _onUpdate?.call();
 
   void _getAllMesh(List<Mesh> meshes, Object object) {
     meshes.add(object.mesh);

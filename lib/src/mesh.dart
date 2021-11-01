@@ -65,7 +65,6 @@ class Mesh {
 
 /// Loading mesh from Wavefront's object file (.obj).
 /// Reference：http://paulbourke.net/dataformats/obj/
-///
 Future<List<Mesh>> loadObj(
   ModelProvider modelProvider,
   bool normalized,
@@ -497,8 +496,8 @@ Future<Image?> packingTexture(List<Mesh> meshes) async {
       final int length = imageWidth * imageHeight;
       pixels = Uint32List(length);
       // color mode then set texture to transparent.
-      const int color =
-          0; //mesh.material == null ? 0 : toColor(mesh.material.kd.bgr, mesh.material.d).value;
+      const int color = 0;
+      //mesh.material == null ? 0 : toColor(mesh.material.kd.bgr, mesh.material.d).value;
       for (int i = 0; i < length; i++) {
         pixels[i] = color;
       }
