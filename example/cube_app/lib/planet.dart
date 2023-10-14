@@ -1,10 +1,15 @@
-/*
+import 'dart:async';
+
+import 'dart:ui';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cube/flutter_cube.dart';
 import 'dart:math' as math;
 
 class PlanetPage extends StatefulWidget {
-  PlanetPage({Key? key}) : super(key: key);
+  const PlanetPage({Key? key}) : super(key: key);
 
   @override
   _PlanetPageState createState() => _PlanetPageState();
@@ -57,7 +62,7 @@ class _PlanetPageState extends State<PlanetPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        duration: Duration(milliseconds: 30000), vsync: this)
+        duration: const Duration(milliseconds: 30000), vsync: this)
       ..addListener(() {
         if (_earth != null) {
           _earth!.rotation.y = _controller.value * 360;
@@ -78,7 +83,7 @@ class _PlanetPageState extends State<PlanetPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: Text('planet')),
+      appBar: AppBar(title: const Text('planet')),
       body: Cube(onSceneCreated: _onSceneCreated),
     );
   }
@@ -131,4 +136,11 @@ Future<Mesh> generateSphereMesh({
   return mesh;
 }
 
-*/
+Future<ui.Image> loadImageFromAsset(String fileName) async {
+  final dataFuture =
+      await rootBundle.load(fileName).then((data) => data.buffer.asUint8List());
+
+  final codec = await instantiateImageCodec(dataFuture);
+  final frameInfo = await codec.getNextFrame();
+  return frameInfo.image;
+}

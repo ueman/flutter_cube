@@ -1,6 +1,7 @@
 import 'package:cube_app/bunny.dart';
 import 'package:cube_app/cube.dart';
 import 'package:cube_app/face.dart';
+import 'package:cube_app/planet.dart';
 import 'package:cube_app/ruby.dart';
 import 'package:flutter/material.dart';
 
@@ -58,12 +59,10 @@ class MyHomePage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              /*
               Navigator.push<void>(context,
                   MaterialPageRoute(builder: (context) {
-                return PlanetPage();
+                return const PlanetPage();
               }));
-              */
             },
             child: const Text('planet example'),
           ),

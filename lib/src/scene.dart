@@ -114,8 +114,8 @@ class Scene extends ChangeNotifier {
     if (!o.visiable) {
       return;
     }
-    model *= o.transform;
-    final Matrix4 transform = projection * view * model;
+    model = (model * o.transform) as Matrix4;
+    final Matrix4 transform = (projection * view * model) as Matrix4;
 
     // apply transform and add vertices to renderMesh
     final double viewportWidth = camera.viewportWidth;

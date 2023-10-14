@@ -412,7 +412,7 @@ Future<Image?> packingTexture(List<Mesh> meshes) async {
   // generate a key for a mesh.
   String getMeshKey(Mesh mesh) {
     if (mesh.texture != null) {
-      return mesh.texturePath ?? '' + mesh.textureRect.toString();
+      return mesh.texturePath ?? '${mesh.textureRect}';
     }
     return toColor(mesh.material.diffuse.bgr).toString();
   }
@@ -522,11 +522,9 @@ Future<Image?> packingTexture(List<Mesh> meshes) async {
 
   // apply the packed textureRect to all meshes.
   for (Mesh mesh in allMeshes) {
-    final String? key = getMeshKey(mesh);
-    if (key != null) {
-      final Rect? rect = textures[key]?.textureRect;
-      if (rect != null) mesh.textureRect = rect;
-    }
+    final String key = getMeshKey(mesh);
+    final Rect? rect = textures[key]?.textureRect;
+    if (rect != null) mesh.textureRect = rect;
   }
 
   final c = Completer<Image>();

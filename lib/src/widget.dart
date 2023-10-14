@@ -1,5 +1,3 @@
-import 'dart:ui';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart' hide Image;
 import 'package:vector_math/vector_math_64.dart';
 import 'scene.dart';
@@ -19,7 +17,7 @@ class Cube extends StatefulWidget {
   final ObjectCreatedCallback? onObjectCreated;
 
   @override
-  _CubeState createState() => _CubeState();
+  State<Cube> createState() => _CubeState();
 }
 
 class _CubeState extends State<Cube> {
@@ -52,7 +50,7 @@ class _CubeState extends State<Cube> {
     super.initState();
     scene = Scene(onObjectCreated: widget.onObjectCreated);
     // prevent setState() or markNeedsBuild called during build
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onSceneCreated?.call(scene);
     });
   }
